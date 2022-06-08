@@ -15,6 +15,8 @@ contract ZombieFactory {
   }
 
   Zombie[] public zombies;
+  mapping(uint256 => address) public zombieToOwner;
+  mapping(address => uint256) public ownerZombieCount;
 
   // Memory and _ are for private variables
   /**
@@ -23,8 +25,15 @@ contract ZombieFactory {
    * @param _dna The dna of the zombie
    */
   function _createZombie(string memory _name, uint256 _dna) private {
+    // does not allow to have more than one Zombie
+    require(ownerZombieCount[msg.sender] == 0, "you already have a Zombie");
     // Creates new --> Zombie(_name, _dna) and push it to the array
     zombies.push(Zombie(_name, _dna));
+
+    // send the zombie owner address
+    zombieToOwner[zombies.length - 1] = msg.sender;
+    ownerZombieCount[msg.sender]++;
+
     // Emits the event to the Front end
     emit NewZombie(zombies.length - 1, _name, _dna);
   }
